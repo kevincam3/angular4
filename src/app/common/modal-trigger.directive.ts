@@ -6,7 +6,6 @@ import {JQUERY_TOKEN} from './jquery.service';
 })
 export class ModalTriggerDirective {
 
-  private el: HTMLElement;
   @Input('modal-trigger') modalId: string;
   constructor(@Inject(JQUERY_TOKEN) private jquery :any ) {
   }
