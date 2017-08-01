@@ -1,7 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import {EventsAppComponent} from "./events-app.component";
-import {NavBarComponent} from "./nav/navbar.component";
+import { RouterModule } from '@angular/router';
+import { HttpModule } from '@angular/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { EventsAppComponent } from './events-app.component';
+import { NavBarComponent } from './nav/navbar.component';
 import {
     JQUERY_TOKEN,
     TOASTR_TOKEN,
@@ -10,30 +13,32 @@ import {
     SimpleModalComponent,
     ModalTriggerDirective
 } from './common/index';
-import {RouterModule} from "@angular/router";
-import {appRoutes} from "./routes";
-import {Error404Component} from "./errors/404.component";
+import {appRoutes} from './routes';
+import {Error404Component} from './errors/404.component';
 import {
     EventsListComponent,
     EventThumbnailComponent,
     EventService,
     EventDetailsComponent,
     CreateEventComponent,
-    EventRouteActivator,
+    EventResolverService,
     EventsListResolver,
     CreateSessionComponent,
     SessionListComponent,
-    DurationPipe
+    UpvoteComponent,
+    DurationPipe,
+    VoterService,
+    LocationValidatorDirective
 } from './events/index';
-import {AuthService} from "./user/auth.service";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-declare let toastr: Toastr;
-declare let jQuery: object;
+import {AuthService} from './user/auth.service';
+declare const toastr: Toastr;
+declare const jQuery: object;
 @NgModule({
     imports: [
         BrowserModule,
         RouterModule.forRoot(appRoutes),
         FormsModule,
+        HttpModule,
         ReactiveFormsModule
     ],
     declarations: [
@@ -50,6 +55,8 @@ declare let jQuery: object;
         DurationPipe,
         SimpleModalComponent,
         ModalTriggerDirective,
+        UpvoteComponent,
+        LocationValidatorDirective
     ],
     bootstrap: [EventsAppComponent],
     providers: [
@@ -58,26 +65,21 @@ declare let jQuery: object;
             provide: TOASTR_TOKEN,
             useValue: toastr
         },
-        EventRouteActivator,
-        {
-            provide: 'canDeactivateCreateEvent',
-            useValue: checkDirtyState
-        },
+        EventResolverService,
         {
             provide: JQUERY_TOKEN,
             useValue: jQuery
         },
         EventsListResolver,
-        AuthService
+        AuthService,
+        VoterService
     ]
 })
-export class AppModule{
+export class AppModule {}
 
-}
-
-export function checkDirtyState(component:CreateEventComponent){
-    if(component.isDirty){
-        let result = window.confirm('You have not saved this event, do you really want to cancel?');
+export function checkDirtyState(component: CreateEventComponent) {
+    if (component.isDirty) {
+        const result = window.confirm('You have not saved this event, do you really want to cancel?');
         return result;
     }
     return true;
